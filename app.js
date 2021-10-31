@@ -41,8 +41,6 @@ app.get('/users/:uuid', async (req, res) => {
       where: { uuid },
       include: 'posts',
     })
-    // const pic = user.photo.toString('base64');
-    // return res.render("photo",{pic:pic});
     return res.redirect(user.photo_url)
   } catch (err) {
     console.log(err)
@@ -74,7 +72,6 @@ app.get('/posts/:uuid', async (req, res) => {
 app.post('/users', async (req, res) => {
   const { name, email, role } = req.body
   const {photo} = req.files;
-  // const pic = photo.data;
   try {
     await photo.mv(__dirname+"\\uploads\\upload_img\\"+photo.name+path.extname(photo.name));
     let url = `http://localhost:5000/${photo.name}` + path.extname(photo.name)
