@@ -47,8 +47,11 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: { msg: 'role must not be empty' },
         },
       },
-      photo: {
-        type: DataTypes.BLOB('long')
+      // photo: {
+      //   type: DataTypes.BLOB('long'),
+      // },
+      photo_url: {
+        type: DataTypes.STRING,
       },
     },
     {

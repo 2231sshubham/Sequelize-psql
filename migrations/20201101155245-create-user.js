@@ -24,8 +24,11 @@ module.exports = {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      photo: {
-        type: DataTypes.BLOB('long'),
+      // photo: {
+      //   type: DataTypes.BLOB('long'),
+      // },
+      photo_url: {
+        type: DataTypes.STRING,
       },
       createdAt: {
         allowNull: false,

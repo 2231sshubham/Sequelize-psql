@@ -1,11 +1,21 @@
 const express = require('express')
+const path = require('path')
 const fileUpload = require('express-fileupload');
 
 const { sequelize, User, Post } = require('./models')
 
 const app = express()
 app.use(express.json())
-app.use(fileUpload());
+
+app.use(fileUpload({
+  createParentPath: true,
+  abortOnLimit: true}))
+
+app.use(express.static("./uploads"));
+app.set('view engine', 'ejs');
+
+
+// ```````````````````````` HOME_get ```````````````//
 
 app.get("/",(req,res) => {
   res.sendFile(__dirname + "/index.html");
@@ -22,6 +32,8 @@ app.get('/users', async (req, res) => {
   }
 })
 
+// ```````````````````````` USERS_get_one ```````````````//
+
 app.get('/users/:uuid', async (req, res) => {
   const uuid = req.params.uuid
   try {
@@ -29,30 +41,44 @@ app.get('/users/:uuid', async (req, res) => {
       where: { uuid },
       include: 'posts',
     })
-
-    return res.json(user)
+    // const pic = user.photo.toString('base64');
+    // return res.render("photo",{pic:pic});
+    return res.redirect(user.photo_url)
   } catch (err) {
     console.log(err)
     return res.status(500).json({ error: 'Something went wrong' })
   }
 })
 
-app.get('/posts', async (req, res) => {
-  try {
-    const posts = await Post.findAll({ include: 'user' })
 
-    return res.json(posts)
+// ```````````````````````` POSTS_get ```````````````//
+
+app.get('/posts/:uuid', async (req, res) => {
+  const uuid = req.params.uuid
+  try {
+    const post = await Post.findOne({
+      where: {uuid},
+      include: 'user'
+    })
+
+    return res.redirect(post.url)
   } catch (err) {
     console.log(err)
     return res.status(500).json(err)
   }
 })
 
+
+// ```````````````````````` USERS_post ```````````````//
+
 app.post('/users', async (req, res) => {
   const { name, email, role } = req.body
-  const photo = req.files.photo.data;
+  const {photo} = req.files;
+  // const pic = photo.data;
   try {
-    const user = await User.create({ name, email, role, photo })
+    await photo.mv(__dirname+"\\uploads\\upload_img\\"+photo.name+path.extname(photo.name));
+    let url = `http://localhost:5000/${photo.name}` + path.extname(photo.name)
+    const user = await User.create({ name, email, role,photo_url:url})
 
     return res.json(user)
   } catch (err) {
@@ -61,14 +87,18 @@ app.post('/users', async (req, res) => {
   }
 })
 
+
+// ```````````````````````` POSTS_post ```````````````//
+
 app.post('/posts', async (req, res) => {
   const { userUuid } = req.body
-  const video = req.files.video.data
+  const {video} = req.files
 
   try {
+    await video.mv(__dirname + "\\uploads\\upload_video\\" + video.name+path.extname(video.name));
+    let url = `http://localhost:5000//upload_video/${video.name}` + path.extname(video.name)
     const user = await User.findOne({ where: { uuid: userUuid } })
-
-    const post = await Post.create({ video , userId: user.id })
+    const post = await Post.create({ url , userId: user.id })
 
     return res.json(post)
   } catch (err) {
@@ -76,6 +106,9 @@ app.post('/posts', async (req, res) => {
     return res.status(500).json(err)
   }
 })
+
+
+// ```````````````````````` DELETE ```````````````//
 
 app.delete('/users/:uuid', async (req, res) => {
   const uuid = req.params.uuid
@@ -90,6 +123,9 @@ app.delete('/users/:uuid', async (req, res) => {
     return res.status(500).json({ error: 'Something went wrong' })
   }
 })
+
+
+// ```````````````````````` UPDATE ```````````````//
 
 app.put('/users/:uuid', async (req, res) => {
   const uuid = req.params.uuid
@@ -111,6 +147,9 @@ app.put('/users/:uuid', async (req, res) => {
     return res.status(500).json({ error: 'Something went wrong' })
   }
 })
+
+
+// ```````````````````````` LISTEN ```````````````//
 
 app.listen({ port: 5000 }, async () => {
   console.log('Server started.')

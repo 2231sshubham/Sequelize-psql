@@ -12,8 +12,8 @@ module.exports = {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
       },
-      video: {
-        type: DataTypes.BLOB('long'),
+      url: {
+        type: DataTypes.STRING,
         allowNull: false,
       },
       userId: {
