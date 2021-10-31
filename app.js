@@ -32,7 +32,7 @@ app.get('/users', async (req, res) => {
   }
 })
 
-// ```````````````````````` USERS_get_one ```````````````//
+// ```````````````````````` USERS_get_one (used binary data here to store and display image) ```````````````//
 
 app.get('/users/:uuid', async (req, res) => {
   const uuid = req.params.uuid
@@ -41,9 +41,8 @@ app.get('/users/:uuid', async (req, res) => {
       where: { uuid },
       include: 'posts',
     })
-    // const pic = user.photo.toString('base64');
-    // return res.render("photo",{pic:pic});
-    return res.redirect(user.photo_url)
+    const pic = user.photo.toString('base64');
+    return res.render("photo",{pic:pic});
   } catch (err) {
     console.log(err)
     return res.status(500).json({ error: 'Something went wrong' })
@@ -76,8 +75,6 @@ app.post('/users', async (req, res) => {
   const {photo} = req.files;
   const pic = photo.data;
   try {
-    // await photo.mv(__dirname+"\\uploads\\upload_img\\"+photo.name+path.extname(photo.name));
-    // let url = `http://localhost:5000/${photo.name}` + path.extname(photo.name)
     const user = await User.create({ name, email, role,photo:pic})
 
     return res.json(user)
