@@ -50,9 +50,6 @@ module.exports = (sequelize, DataTypes) => {
       photo: {
         type: DataTypes.BLOB('long'),
       },
-      // photo_url: {
-      //   type: DataTypes.STRING,
-      // },
     },
     {
       sequelize,
