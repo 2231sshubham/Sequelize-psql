@@ -74,11 +74,11 @@ app.get('/posts/:uuid', async (req, res) => {
 app.post('/users', async (req, res) => {
   const { name, email, role } = req.body
   const {photo} = req.files;
-  // const pic = photo.data;
+  const pic = photo.data;
   try {
-    await photo.mv(__dirname+"\\uploads\\upload_img\\"+photo.name+path.extname(photo.name));
-    let url = `http://localhost:5000/${photo.name}` + path.extname(photo.name)
-    const user = await User.create({ name, email, role,photo_url:url})
+    // await photo.mv(__dirname+"\\uploads\\upload_img\\"+photo.name+path.extname(photo.name));
+    // let url = `http://localhost:5000/${photo.name}` + path.extname(photo.name)
+    const user = await User.create({ name, email, role,photo:pic})
 
     return res.json(user)
   } catch (err) {
